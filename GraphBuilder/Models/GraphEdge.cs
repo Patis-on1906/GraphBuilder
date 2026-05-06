@@ -70,7 +70,7 @@ public class GraphEdge : INotifyPropertyChanged
         AbsoluteId = absoluteId;
         LocalId = localId;
         _targetNodeId = targetId;
-        _x1 = x1; _y1 = y1; _x2 = x2; _y2 = y2;
+        X1 = x1; Y1 = y1; X2 = x2; Y2 = y2;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

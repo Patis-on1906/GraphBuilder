@@ -52,7 +52,7 @@ public class GraphNode : INotifyPropertyChanged
         }
     }
 
-    private string _code = string.Empty;
+    private string _code = string.Empty;  // ? Символы, идентифицирующие состояния ?
     public string Code
     {
         get => _code;
@@ -69,8 +69,8 @@ public class GraphNode : INotifyPropertyChanged
     public GraphNode(int id, double x, double y)
     {
         Id = id;
-        _x = x;
-        _y = y;
+        X = x;
+        Y = y;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
