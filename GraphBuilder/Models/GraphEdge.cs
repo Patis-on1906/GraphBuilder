@@ -8,7 +8,6 @@ public class GraphEdge : INotifyPropertyChanged
 {
     public int AbsoluteId { get; init; }
     public int LocalId { get; init; }
-    // ? нужны ли эти ID, потому что даже в QWEN метод AddEdge из GraphService другие параметры. Можно будет обращаться через TargetNodeId и X1, Y1, либо же оставить только абсолютный ID
 
     private int _targetNodeId;
     public int TargetNodeId

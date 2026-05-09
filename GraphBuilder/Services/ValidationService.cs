@@ -8,7 +8,7 @@ namespace GraphBuilder.Services
 {
     public static class ValidationService
     {
-        public static bool ValidateGraph(Graph g)   // ? почему координаты не могут быть отрицательнами? Это реализовано, но для ветвей логично условие чтобы начало и конец не были одной точкой
+        public static bool ValidateGraph(Graph g)   // ? почему координаты не могут быть отрицательнами? Это реализовано, но нелогично. Для ветвей логично условие чтобы начало и конец не были одной точкой
         {
             List<int> absolute_edges_id = new List<int>();
 
@@ -22,17 +22,15 @@ namespace GraphBuilder.Services
                 {
                     if(edge.DelaySeconds <= 0) { return false; }
 
-                    if (node.OutgoingEdges.Count > local_edges_id_couter)
-                    {
-                        local_edges_id[local_edges_id_couter] = edge.LocalId;
-                        local_edges_id_couter++;
-                    }
-                    else { return false; }
+                    local_edges_id[local_edges_id_couter] = edge.LocalId;
+                    local_edges_id_couter++;
 
                     // проверка координат ветви
                     if(edge.X1 < 0 || edge.Y1 < 0 || edge.X2 < 0 || edge.Y2 < 0) { return false; }
 
                     absolute_edges_id.Add(edge.AbsoluteId);
+
+                    if(!IsTargetNodeExist(g, edge.TargetNodeId)) { return false; }
                 }
 
                 for(int i = 0; i < local_edges_id_couter; i++)  // уникальность локальных id ветвей
@@ -78,6 +76,5 @@ namespace GraphBuilder.Services
             if(e.Predicate >= 1 && e.Predicate <= outgoingCount) { return true; }
             return false;
         }
-
     }
 }
