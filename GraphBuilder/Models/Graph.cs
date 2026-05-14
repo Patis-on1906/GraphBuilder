@@ -1,14 +1,21 @@
 using System.Collections.ObjectModel;
+using System.Xml.Serialization;
+
 
 namespace GraphBuilder.Models;
 
+[XmlRoot("Graph")]
 public class Graph
 {
+    [XmlArray("Nodes")]
+    [XmlArrayItem("Node")]
     public ObservableCollection<GraphNode> Nodes { get; } = new();
-    
+
     // Счётчики для генерации уникальных ID
-    public int NextNodeId { get; private set; } = 1;
-    public int NextEdgeAbsoluteId { get; private set; } = 1;
+    [XmlAttribute("NextNodeID")]
+    public int NextNodeId { get; set; } = 1;
+    [XmlAttribute("NextEdgeAbsId")]
+    public int NextEdgeAbsoluteId { get; set; } = 1;
 
     public GraphNode AddNode(double x, double y)
     {
@@ -33,4 +40,6 @@ public class Graph
         NextNodeId = 1;
         NextEdgeAbsoluteId = 1;
     }
+
+    public Graph() { }
 }

@@ -1,5 +1,6 @@
 using GraphBuilder.Models;
 using GraphBuilder.Services;
+using FluentAssertions;
 
 namespace Services.Test;
 
@@ -71,5 +72,22 @@ public class ServiceTests
         bool isValid = ValidationService.ValidateGraph(graph);
 
         Assert.False(isValid);
+    }
+
+
+    //  ТЕСТ ДЛЯ ХМЛ СЕРВИСА
+    [Fact]
+    public void XmpServiceTest()
+    {
+        var g = new Graph();
+        GraphService service = new GraphService(g);
+        service.AddNode(1, 1);
+        service.AddNode(5, 5);
+        service.AddEdge(1, 2, 1, 1, 5, 5);
+
+        GraphXmlService.Save(g, "test2.xml");
+        Graph g2 = GraphXmlService.Load("test2.xml");
+
+        g.Should().BeEquivalentTo(g2);
     }
 }
