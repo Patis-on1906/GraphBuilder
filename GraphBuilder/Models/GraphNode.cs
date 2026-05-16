@@ -9,6 +9,7 @@ public class GraphNode : INotifyPropertyChanged
 {
     public int Id { get; init; }
     public ObservableCollection<GraphEdge> OutgoingEdges { get; } = new();
+    public bool IsHighlighted { get; set; } = false;
 
     private double _x;
     public double X
