@@ -2,16 +2,22 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
 
 namespace GraphBuilder.Models;
 
 public class GraphNode : INotifyPropertyChanged
 {
+    [XmlAttribute("Id")]
     public int Id { get; init; }
+
+    [XmlArray("OutgoingEdges")]
+    [XmlArrayItem("OutgoingEdge")]
     public ObservableCollection<GraphEdge> OutgoingEdges { get; } = new();
     public bool IsHighlighted { get; set; } = false;
 
     private double _x;
+    [XmlAttribute("X")]
     public double X
     {
         get => _x;
@@ -26,6 +32,7 @@ public class GraphNode : INotifyPropertyChanged
     }
 
     private double _y;
+    [XmlAttribute("Y")]
     public double Y
     {
         get => _y;
@@ -40,6 +47,7 @@ public class GraphNode : INotifyPropertyChanged
     }
 
     private double _radius = 30.0;
+    [XmlAttribute("Radius")]
     public double Radius
     {
         get => _radius;
@@ -53,7 +61,8 @@ public class GraphNode : INotifyPropertyChanged
         }
     }
 
-    private string _code = string.Empty;
+    private string _code = string.Empty;  // ? Символы, идентифицирующие состояния ?
+    [XmlAttribute("Code")]
     public string Code
     {
         get => _code;
@@ -70,11 +79,13 @@ public class GraphNode : INotifyPropertyChanged
     public GraphNode(int id, double x, double y)
     {
         Id = id;
-        _x = x;
-        _y = y;
+        X = x;
+        Y = y;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+    public GraphNode() { }
 }

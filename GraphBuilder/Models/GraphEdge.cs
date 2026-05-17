@@ -1,15 +1,19 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
 
 namespace GraphBuilder.Models;
 
 public class GraphEdge : INotifyPropertyChanged
 {
+    [XmlAttribute("AbsId")]
     public int AbsoluteId { get; init; }
+    [XmlAttribute("LocalId")]
     public int LocalId { get; init; }
 
     private int _targetNodeId;
+    [XmlAttribute("TargetId")]
     public int TargetNodeId
     {
         get => _targetNodeId;
@@ -24,6 +28,7 @@ public class GraphEdge : INotifyPropertyChanged
     }
 
     private double _x1;
+    [XmlAttribute("X1")]
     public double X1
     {
         get => _x1;
@@ -31,6 +36,7 @@ public class GraphEdge : INotifyPropertyChanged
     }
 
     private double _y1;
+    [XmlAttribute("Y1")]
     public double Y1
     {
         get => _y1;
@@ -38,6 +44,7 @@ public class GraphEdge : INotifyPropertyChanged
     }
 
     private double _x2;
+    [XmlAttribute("X2")]
     public double X2
     {
         get => _x2;
@@ -45,6 +52,7 @@ public class GraphEdge : INotifyPropertyChanged
     }
 
     private double _y2;
+    [XmlAttribute("Y2")]
     public double Y2
     {
         get => _y2;
@@ -52,6 +60,7 @@ public class GraphEdge : INotifyPropertyChanged
     }
 
     private int _predicate;
+    [XmlAttribute("Predicate")]
     public int Predicate
     {
         get => _predicate;
@@ -59,6 +68,7 @@ public class GraphEdge : INotifyPropertyChanged
     }
 
     private double _delaySeconds = 2.0;
+    [XmlAttribute("Delay")]
     public double DelaySeconds
     {
         get => _delaySeconds;
@@ -69,11 +79,13 @@ public class GraphEdge : INotifyPropertyChanged
     {
         AbsoluteId = absoluteId;
         LocalId = localId;
-        _targetNodeId = targetId;
-        _x1 = x1; _y1 = y1; _x2 = x2; _y2 = y2;
+        TargetNodeId = targetId;
+        X1 = x1; Y1 = y1; X2 = x2; Y2 = y2;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+    public GraphEdge() { }
 }
