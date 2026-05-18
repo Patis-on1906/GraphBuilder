@@ -54,13 +54,25 @@ public class GraphRenderer
     public void AddEdge(GraphEdge edge)
     {
         var visuals = EdgeRenderer.Create(edge);
-        
-        // Добавляем на Canvas в правильном порядке (Z-индекс)
-        _canvas.Children.Add(visuals.HitTestLine);   // Прозрачная, для кликов
-        _canvas.Children.Add(visuals.MainLine);        // Видимая линия
-        _canvas.Children.Add(visuals.PredicateText);   // Текст
-        
+
+        _canvas.Children.Add(visuals.HitTestLine);
+        _canvas.Children.Add(visuals.MainLine);
+        _canvas.Children.Add(visuals.ArrowHead);
+        _canvas.Children.Add(visuals.PredicateText);
+
         _edgeViews[edge.AbsoluteId] = visuals;
+    }
+
+    public void RemoveEdge(int edgeAbsoluteId)
+    {
+        if (_edgeViews.TryGetValue(edgeAbsoluteId, out var visuals))
+        {
+            _canvas.Children.Remove(visuals.HitTestLine);
+            _canvas.Children.Remove(visuals.MainLine);
+            _canvas.Children.Remove(visuals.ArrowHead);
+            _canvas.Children.Remove(visuals.PredicateText);
+            _edgeViews.Remove(edgeAbsoluteId);
+        }
     }
 
     public void RemoveNode(int nodeId)
@@ -71,15 +83,25 @@ public class GraphRenderer
             _nodeViews.Remove(nodeId);
         }
     }
-
-    public void RemoveEdge(int edgeAbsoluteId)
+    
+    public void RefreshEdges(Graph graph)
     {
-        if (_edgeViews.TryGetValue(edgeAbsoluteId, out var visuals))
+        // Удаляем старые визуалы дуг
+        foreach (var visuals in _edgeViews.Values)
         {
             _canvas.Children.Remove(visuals.HitTestLine);
             _canvas.Children.Remove(visuals.MainLine);
             _canvas.Children.Remove(visuals.PredicateText);
-            _edgeViews.Remove(edgeAbsoluteId);
+        }
+        _edgeViews.Clear();
+    
+        // Создаём новые с правильной подпиской
+        foreach (var node in graph.Nodes)
+        {
+            foreach (var edge in node.OutgoingEdges)
+            {
+                AddEdge(edge);
+            }
         }
     }
 

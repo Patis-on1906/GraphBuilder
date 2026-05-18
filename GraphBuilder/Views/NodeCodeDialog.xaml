@@ -1,12 +1,17 @@
 <Window x:Class="GraphBuilder.Views.NodeCodeDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:GraphBuilder.Views"
-        mc:Ignorable="d"
-        Title="NodeCodeDialog" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="Код узла" Height="200" Width="400"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <StackPanel Margin="10">
+        <TextBlock Text="Введите код для генерации числа:" Margin="0,0,0,10"/>
+        <TextBox x:Name="CodeTextBox" 
+                 Text="GEN_RANDOM(1,N)" 
+                 Height="25" 
+                 Margin="0,0,0,15"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Отмена" Width="80" Margin="0,0,10,0" Click="Cancel_Click"/>
+            <Button Content="OK" Width="80" IsDefault="True" Click="Ok_Click"/>
+        </StackPanel>
+    </StackPanel>
 </Window>

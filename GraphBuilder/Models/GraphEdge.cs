@@ -11,6 +11,9 @@ public class GraphEdge : INotifyPropertyChanged
     public int AbsoluteId { get; init; }
     [XmlAttribute("LocalId")]
     public int LocalId { get; init; }
+    
+    [XmlAttribute("SourceId")]
+    public int SourceNodeId { get; init; }
 
     private int _targetNodeId;
     [XmlAttribute("TargetId")]
@@ -59,7 +62,7 @@ public class GraphEdge : INotifyPropertyChanged
         set { if (Math.Abs(_y2 - value) > 0.001) { _y2 = value; OnPropertyChanged(); } }
     }
 
-    private int _predicate;
+    private int _predicate = 1;
     [XmlAttribute("Predicate")]
     public int Predicate
     {
@@ -75,17 +78,18 @@ public class GraphEdge : INotifyPropertyChanged
         set { if (Math.Abs(_delaySeconds - value) > 0.001) { _delaySeconds = value; OnPropertyChanged(); } }
     }
 
-    public GraphEdge(int absoluteId, int localId, int targetId, double x1, double y1, double x2, double y2)
+    public GraphEdge(int absoluteId, int localId, int sourceId, int targetId, double x1, double y1, double x2, double y2)
     {
         AbsoluteId = absoluteId;
         LocalId = localId;
+        SourceNodeId = sourceId;
         TargetNodeId = targetId;
         X1 = x1; Y1 = y1; X2 = x2; Y2 = y2;
     }
+    
+    public GraphEdge() { }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-    public GraphEdge() { }
 }

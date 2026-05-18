@@ -6,4 +6,5 @@ public interface IGraphAnimationView
     void UnhighlightNode(int nodeId);
     void ShowAnimationError(string message);
     void NotifyAnimationStepCompleted(int fromNodeId, int toNodeId, int edgeId);
+    void NotifyAnimationFinished();
 }

@@ -61,7 +61,7 @@ public class GraphNode : INotifyPropertyChanged
         }
     }
 
-    private string _code = string.Empty;  // ? Символы, идентифицирующие состояния ?
+    private string _code = string.Empty;
     [XmlAttribute("Code")]
     public string Code
     {

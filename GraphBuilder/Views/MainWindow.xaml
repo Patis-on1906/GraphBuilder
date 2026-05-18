@@ -34,6 +34,8 @@
         <Canvas x:Name="GraphCanvas" 
                 Background="White" 
                 ClipToBounds="True"
-                Margin="4"/>
+                Margin="4"
+                Focusable="True"
+                KeyboardNavigation.IsTabStop="True"/>
     </DockPanel>
 </Window>

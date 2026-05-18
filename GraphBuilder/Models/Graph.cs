@@ -19,7 +19,10 @@ public class Graph
 
     public GraphNode AddNode(double x, double y)
     {
-        var node = new GraphNode(NextNodeId++, x, y);
+        var node = new GraphNode(NextNodeId++, x, y)
+        {
+            Code = Constants.AppConstants.DefaultNodeCode
+        };
         Nodes.Add(node);
         return node;
     }
@@ -27,7 +30,16 @@ public class Graph
     public GraphEdge AddEdge(int sourceNodeId, int targetNodeId, double x1, double y1, double x2, double y2)
     {
         var source = Nodes.First(n => n.Id == sourceNodeId);
-        var edge = new GraphEdge(NextEdgeAbsoluteId++, source.OutgoingEdges.Count + 1, targetNodeId, x1, y1, x2, y2);
+        int localId = source.OutgoingEdges.Count + 1;
+        var edge = new GraphEdge(
+            NextEdgeAbsoluteId++, 
+            localId, 
+            sourceNodeId,
+            targetNodeId, 
+            x1, y1, x2, y2)
+        {
+            Predicate = localId
+        };
         source.OutgoingEdges.Add(edge);
         return edge;
     }
@@ -42,4 +54,44 @@ public class Graph
     }
 
     public Graph() { }
+
+    /// <summary>
+    /// Копирует данные из другого графа в текущий экземпляр.
+    /// Используется при загрузке из XML.
+    /// </summary>
+    public void CopyFrom(Graph source)
+    {
+        Clear(); // Очищаем текущий граф
+    
+        // Копируем счётчики
+        NextNodeId = source.NextNodeId;
+        NextEdgeAbsoluteId = source.NextEdgeAbsoluteId;
+    
+        // Копируем узлы и их дуги
+        foreach (var sourceNode in source.Nodes)
+        {
+            var newNode = new GraphNode(sourceNode.Id, sourceNode.X, sourceNode.Y)
+            {
+                Radius = sourceNode.Radius,
+                Code = sourceNode.Code
+            };
+            Nodes.Add(newNode);
+            
+            foreach (var sourceEdge in sourceNode.OutgoingEdges)
+            {
+                var newEdge = new GraphEdge(
+                    sourceEdge.AbsoluteId,
+                    sourceEdge.LocalId,
+                    sourceEdge.SourceNodeId, 
+                    sourceEdge.TargetNodeId,
+                    sourceEdge.X1, sourceEdge.Y1,
+                    sourceEdge.X2, sourceEdge.Y2)
+                {
+                    Predicate = sourceEdge.Predicate,
+                    DelaySeconds = sourceEdge.DelaySeconds
+                };
+                newNode.OutgoingEdges.Add(newEdge);
+            }
+        }
+    }
 }

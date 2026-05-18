@@ -4,6 +4,8 @@ using System.Windows.Input;
 using GraphBuilder.Interfaces;
 using GraphBuilder.Models;
 using GraphBuilder.Rendering;
+using GraphBuilder.Services;
+using GraphBuilder.Views;
 
 namespace GraphBuilder.Editor;
 
@@ -13,9 +15,13 @@ public class GraphEditorController
     private readonly Canvas _canvas;
     private readonly Graph _graph;
     private readonly IAnimationService _animationService;
+    private readonly GraphService  _graphService;
     private readonly GraphRenderer _renderer;
-
-    public bool IsEditing { get; private set; } = true;
+    private readonly EdgeCreationHandler _edgeCreator;
+    
+    public GraphRenderer Renderer => _renderer;
+    public void EnableEdgeCreator() => _edgeCreator.Enable();
+    public bool IsEditing { get; set; } = true;
     public bool IsAnimating => _animationService?.IsRunning == true;
 
     public GraphEditorController(IGraphAnimationView view, Canvas canvas, Graph graph, IAnimationService animationService)
@@ -24,7 +30,12 @@ public class GraphEditorController
         _canvas = canvas;
         _graph = graph;
         _animationService = animationService;
+        _graphService = new GraphService(_graph);
         _renderer = new GraphRenderer(_canvas);
+
+        _graphService.RebuildIndex();
+        
+        _edgeCreator = new EdgeCreationHandler(_canvas, _graph, _graphService, _renderer);
     
         _canvas.MouseRightButtonDown += Canvas_MouseRightButtonDown;
         _canvas.MouseLeftButtonDown += Canvas_MouseLeftButtonDown;
@@ -32,18 +43,20 @@ public class GraphEditorController
         _canvas.MouseLeftButtonUp += Canvas_MouseLeftButtonUp;
     }
 
+    public void RebuildGraphService() => _graphService?.RebuildIndex();
 
     public void CreateNewGraph()
     {
         _graph.Clear();
+        _graphService.RebuildIndex();
         _renderer.RenderAll(_graph);
         IsEditing = true;
     }
 
     public void AddNodeAt(double x, double y)
     {
-        var node = _graph.AddNode(x, y);
-        _renderer.AddNode(node); // ✅ Метод называется AddNode, а не AddNodeToCanvas
+        var node = _graphService.AddNode(x, y);
+        _renderer.AddNode(node);
     }
 
     public void StartAnimation(double durationSeconds)
@@ -61,6 +74,7 @@ public class GraphEditorController
         }
         IsEditing = false;
         _animationService.Start(_graph, _view, durationSeconds);
+        _edgeCreator.Disable(); 
     }
 
     public void StopAnimation()
@@ -71,10 +85,9 @@ public class GraphEditorController
         {
             _renderer.HighlightNode(node.Id, false);
         }
+        _edgeCreator.Enable(); 
     }
-
-    // === Обработчики мыши ===
-
+    
     private void Canvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (!IsEditing) return;
@@ -109,20 +122,31 @@ public class GraphEditorController
         }
     }
 
-// Новый метод для обработки двойного клика:
     private void HandleDoubleClick(Point pos)
     {
         var node = _renderer.HitTestNode(pos);
         if (node != null)
         {
-            _view.ShowAnimationError($"Двойной клик по узлу {node.Id}");
+            var dialog = new NodeCodeDialog(node.Code) { Owner = Application.Current.MainWindow };
+            if (dialog.ShowDialog() == true && dialog.ResultCode != null)
+                node.Code = dialog.ResultCode;
             return;
         }
 
         var edge = _renderer.HitTestEdge(pos);
         if (edge != null)
         {
-            _view.ShowAnimationError($"Двойной клик по дуге {edge.AbsoluteId}");
+            var sourceNode = _graph.GetNode(edge.SourceNodeId);
+            int maxPredicate = sourceNode?.OutgoingEdges.Count ?? 1;
+            
+            var edgeDialog = new EdgeDialog(edge.Predicate, edge.DelaySeconds, maxPredicate)
+                { Owner = Application.Current.MainWindow };
+
+            if (edgeDialog.ShowDialog() == true)
+            {
+                edge.Predicate = edgeDialog.ResultPredicate ?? edge.Predicate;
+                edge.DelaySeconds = edgeDialog.ResultDelay ?? edge.DelaySeconds;
+            }
         }
     }
 
@@ -135,7 +159,8 @@ public class GraphEditorController
             _draggedNode.X += pos.X - _dragStart.X;
             _draggedNode.Y += pos.Y - _dragStart.Y;
             _dragStart = pos;
-            // Здесь позже добавим обновление координат дуг
+            
+            _graphService?.UpdateEdgeCoordinates(_draggedNode.Id);
         }
     }
 

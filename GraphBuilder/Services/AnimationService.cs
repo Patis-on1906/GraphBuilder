@@ -31,16 +31,16 @@ namespace GraphBuilder.Services
             _isRunning = false;
         }
 
-        private async Task RunAnimation(Graph graph, IGraphAnimationView view, double durationSeconds, CancellationToken token)
+        private async Task RunAnimation(Graph graph, IGraphAnimationView view,
+            double durationSeconds, CancellationToken token)
         {
+            bool finishedNormally = false;
             try
             {
-                // 1 - поиск узла с Id = 1
                 var currentNode = graph.Nodes.FirstOrDefault(n => n.Id == 1);
                 if (currentNode == null)
                 {
                     view.ShowAnimationError("Стартовый узел (Id=1) не найден в графе");
-                    Stop();
                     return;
                 }
 
@@ -49,17 +49,13 @@ namespace GraphBuilder.Services
 
                 while (_isRunning && (DateTime.UtcNow - startTime).TotalSeconds < durationSeconds)
                 {
-                    // 2 - подсветка узла
                     view.HighlightNode(currentNode.Id);
-                    view.NotifyAnimationStepCompleted(-1, currentNode.Id, -1); // уведомление о входе
+                    view.NotifyAnimationStepCompleted(-1, currentNode.Id, -1);
 
-                    // 3 - пусто
-
-                    // Шаг 4-5: выбрать случайную дугу на основе предиката
                     var outgoingEdges = currentNode.OutgoingEdges;
                     if (outgoingEdges.Count == 0)
                     {
-                        view.ShowAnimationError($"Узел {currentNode.Id} не имеет исходящих дуг, анимация остановлена");
+                        view.ShowAnimationError($"Узел {currentNode.Id} не имеет исходящих дуг — анимация остановлена");
                         break;
                     }
 
@@ -71,7 +67,6 @@ namespace GraphBuilder.Services
                         break;
                     }
 
-                    // Шаг 6: определить целевой узел
                     var targetNode = graph.Nodes.FirstOrDefault(n => n.Id == selectedEdge.TargetNodeId);
                     if (targetNode == null)
                     {
@@ -79,20 +74,20 @@ namespace GraphBuilder.Services
                         break;
                     }
 
-                    // Шаг 7: задержка (с возможностью отмены)
                     await Task.Delay(TimeSpan.FromSeconds(selectedEdge.DelaySeconds), token);
 
-                    // Шаг 8: снять подсветку с текущего узла
                     view.UnhighlightNode(currentNode.Id);
                     view.NotifyAnimationStepCompleted(currentNode.Id, targetNode.Id, selectedEdge.AbsoluteId);
-
-                    // Шаг 9: переход к следующему узлу
                     currentNode = targetNode;
                 }
+
+                // ✅ помечаем нормальное завершение только если вышли по времени, а не по break
+                if (_isRunning)
+                    finishedNormally = true;
             }
             catch (OperationCanceledException)
             {
-                // Остановка по запросу
+                // остановка по кнопке «Остановить» — не ошибка
             }
             catch (Exception ex)
             {
@@ -100,10 +95,12 @@ namespace GraphBuilder.Services
             }
             finally
             {
-                // Снять подсветку со всех узлов
                 foreach (var node in graph.Nodes)
                     view.UnhighlightNode(node.Id);
                 _isRunning = false;
+
+                if (finishedNormally)
+                    view.NotifyAnimationFinished(); // ✅ только при штатном завершении
             }
         }
     }

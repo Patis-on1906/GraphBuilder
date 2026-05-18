@@ -8,7 +8,7 @@ namespace GraphBuilder.Services
 {
     public static class ValidationService
     {
-        public static bool ValidateGraph(Graph g)   // ? почему координаты не могут быть отрицательнами? Это реализовано, но нелогично. Для ветвей логично условие чтобы начало и конец не были одной точкой
+        public static bool ValidateGraph(Graph g)   
         {
             List<int> absolute_edges_id = new List<int>();
 
@@ -24,9 +24,6 @@ namespace GraphBuilder.Services
 
                     local_edges_id[local_edges_id_couter] = edge.LocalId;
                     local_edges_id_couter++;
-
-                    // проверка координат ветви
-                    if(edge.X1 < 0 || edge.Y1 < 0 || edge.X2 < 0 || edge.Y2 < 0) { return false; }
 
                     absolute_edges_id.Add(edge.AbsoluteId);
 
@@ -48,8 +45,6 @@ namespace GraphBuilder.Services
                     if(node.Id == node_temp.Id) { equal_id_count++; }
                 }
                 if(equal_id_count != 1) { return false; }
-
-                if(node.X < 0 || node.Y < 0) { return false; }  // проверка координат узла
             }
 
             if(absolute_edges_id.Count != absolute_edges_id.Distinct().Count()) { return false; }   // уникальность AbsoluteId узлов

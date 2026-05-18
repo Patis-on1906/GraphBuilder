@@ -1,160 +1,142 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
-
 using GraphBuilder.Models;
 
+namespace GraphBuilder.Services;
 
-namespace GraphBuilder.Services
+public class GraphService
 {
-    public class GraphService
+    private readonly Graph _graph;
+    private Dictionary<int, GraphNode> _nodeById = new();
+
+    public GraphService(Graph graph)
+    { 
+        _graph = graph ?? throw new ArgumentNullException(nameof(graph));
+        RebuildIndex(); // 🔑 Инициализируем словарь при создании сервиса
+    }
+
+    /// <summary>
+    /// Перестраивает индекс узлов. Вызывать после загрузки из XML или массовой модификации.
+    /// </summary>
+    public void RebuildIndex()
     {
-        private Graph _graph;
-        private Dictionary<int, GraphNode> _nodeById;
+        _nodeById = _graph.Nodes.ToDictionary(n => n.Id);
+    }
 
-        public GraphService(Graph graph)
-        { 
-            _graph = graph;
-            _nodeById = new Dictionary<int, GraphNode>();
-            foreach(GraphNode node in _graph.Nodes)
-            {
-                _nodeById[node.Id] = node;
-            }
+    public GraphNode? GetNode(int id) => 
+        _nodeById.TryGetValue(id, out var node) ? node : null;
+
+    public GraphNode AddNode(double x, double y)
+    {
+        var newNode = _graph.AddNode(x, y);
+        _nodeById[newNode.Id] = newNode;
+        return newNode;                 
+    }
+    
+    public GraphEdge AddEdge(int srcId, int trgId, double x1, double y1, double x2, double y2)
+    {
+        if (srcId == trgId && (Math.Abs(x1 - x2) < 0.001 && Math.Abs(y1 - y2) < 0.001))
+        {
+            throw new ArgumentException("Дуга не может быть вырожденной в точку");
+        }
+    
+        return _graph.AddEdge(srcId, trgId, x1, y1, x2, y2); // 🔑 Возвращаем дугу
+    }
+
+    public void RemoveNode(int id)
+    {
+        var node = GetNode(id);
+        if (node == null)
+        {
+            throw new ArgumentException($"Узел с Id={id} не существует");
         }
 
+        // Удаляем все исходящие дуги этого узла
+        node.OutgoingEdges.Clear();
 
-        public GraphNode GetNode(int id)
+        // Удаляем все входящие дуги из других узлов
+        foreach (var otherNode in _graph.Nodes.ToList()) // ToList() для безопасного удаления во время итерации
         {
-            return _nodeById.GetValueOrDefault(id);
-        }
-
-
-        public void AddNode(double x, double y)
-        {
-            GraphNode new_nod = _graph.AddNode(x, y);
-            _nodeById[new_nod.Id] = new_nod;
-        }
-
-
-        public void AddEdge(int srcId, int trgId, double x1, double y1, double x2, double y2)
-        {
-            if(srcId == trgId || (x1 == x2 && y1 == y2))
+            for (int i = otherNode.OutgoingEdges.Count - 1; i >= 0; i--)
             {
-                throw new ArgumentException("Узел никуда не указывает");
-            }
-            GraphEdge ge = _graph.AddEdge(srcId, trgId, x1, y1, x2, y2);
-        }
-
-
-        public void RemoveNode(int id)
-        {
-            bool is_node_exist = _nodeById.ContainsKey(id); // существование узла
-            if (!is_node_exist)
-            {
-                throw new ArgumentException("Узла с таким идентификатором не существует");
-            }
-
-
-            GetNode(id).OutgoingEdges.Clear();
-
-            bool is_remove_uspex = _graph.Nodes.Remove(GetNode(id));
-            if (!is_remove_uspex)
-            {
-                throw new ArgumentException("Не удалось удалить узел");
-            }
-
-            // Удаление ветвей, у которых этот узел был таргетом
-            foreach(GraphNode gn in _graph.Nodes)
-            {
-                for(int i = gn.OutgoingEdges.Count - 1; i >= 0; i--)
+                if (otherNode.OutgoingEdges[i].TargetNodeId == id)
                 {
-                    if (gn.OutgoingEdges[i].TargetNodeId == id)
-                    {
-                        gn.OutgoingEdges.RemoveAt(i);
-                    }
+                    otherNode.OutgoingEdges.RemoveAt(i);
                 }
             }
-
-            _nodeById.Remove(id);
         }
 
+        // Удаляем узел из графа и индекса
+        _graph.Nodes.Remove(node);
+        _nodeById.Remove(id);
+    }
+    
+    public void UpdateEdgeCoordinates(int nodeId)
+    {
+        var node = GetNode(nodeId);
+        if (node == null) return;
 
-        public void UpdateEdgeCoordinates(int nodeId)
+        // Обновляем исходящие дуги
+        foreach (var edge in node.OutgoingEdges)
         {
-            GraphNode node = GetNode(nodeId);
-            foreach(GraphEdge ge in node.OutgoingEdges) // выходящие
+            var targetNode = GetNode(edge.TargetNodeId);
+            if (targetNode != null)
+                UpdateEdgeEndpoints(node, targetNode, edge);
+        }
+
+        // Обновляем входящие дуги (ищем все дуги, у которых TargetNodeId == nodeId)
+        foreach (var otherNode in _graph.Nodes)
+        {
+            if (otherNode.Id == nodeId) continue;
+            foreach (var edge in otherNode.OutgoingEdges)
             {
-                GraphNode cur_trg_node = GetNode(ge.TargetNodeId);
-                if(cur_trg_node == null) { continue; }
-
-                if(node != cur_trg_node)    // незамкнутость
+                if (edge.TargetNodeId == nodeId)
                 {
-                    double dx = cur_trg_node.X - node.X;
-                    double dy = cur_trg_node.Y - node.Y;
-                    if(Math.Abs(dx) < 0.001) { dx = 0; }
-                    if(Math.Abs(dy) < 0.001) { dy = 0; }
-
-                    double distance = Math.Sqrt(dx * dx + dy * dy);
-                    if (distance < 1e-6)
-                    {
-                        if (node.Id == ge.TargetNodeId) { UpdateClosedEdgeCoordinates(nodeId, ge); }
-                        continue;
-                    }
-
-                    // координаты выходящей дуги - точки на окружности узла
-                    double new_x1 = node.X + (dx / distance) * node.Radius;
-                    double new_y1 = node.Y + (dy / distance) * node.Radius;
-
-                    ge.X1 = new_x1;
-                    ge.Y1 = new_y1;
-                }
-                else
-                {
-                    UpdateClosedEdgeCoordinates(nodeId, ge);
+                    var sourceNode = otherNode;
+                    var targetNode = node;
+                    UpdateEdgeEndpoints(sourceNode, targetNode, edge);
                 }
             }
-
-            // входящие ветви
-            foreach(GraphNode gn in _graph.Nodes)
-            {
-                if(gn == null) { continue; }
-                if(gn.Id == nodeId) { continue; }   // возможно не нужно пропускать, хотя вроде замкнутые уже обработаются на входящем переборе 
-
-                foreach (GraphEdge ge2 in gn.OutgoingEdges)
-                {
-                    if (ge2.TargetNodeId == nodeId)
-                    {
-                        double dx = node.X - gn.X;
-                        double dy = node.Y - gn.Y;
-                        if (Math.Abs(dx) < 0.001) { dx = 0; }
-                        if (Math.Abs(dy) < 0.001) { dy = 0; }
-
-                        double distance = Math.Sqrt(dx * dx + dy * dy);
-                        if (distance < 1e-6)
-                        {
-                            if(node.Id == ge2.TargetNodeId) { UpdateClosedEdgeCoordinates(nodeId, ge2); }
-                            continue;
-                        }
-
-                        double new_x2 = node.X - (dx / distance) * node.Radius;
-                        double new_y2 = node.Y - (dy / distance) * node.Radius;
-
-                        ge2.X2 = new_x2;
-                        ge2.Y2 = new_y2;
-                    }
-                }
-            }
-            
         }
+    }
+    
+    private void UpdateEdgeEndpoints(GraphNode source, GraphNode target, GraphEdge edge)
+    {
+        double dx = target.X - source.X;
+        double dy = target.Y - source.Y;
+        double distance = Math.Sqrt(dx * dx + dy * dy);
 
-
-        // из верхней точки окружности в нижнюю: предполагается, что ветви не будут пересекать окружность, а обходить
-        private void UpdateClosedEdgeCoordinates(int node_id, GraphEdge edge)
+        // Если узлы почти совпадают – рисуем петлю
+        if (distance < 1e-6)
         {
-            GraphNode node = GetNode(node_id);
-            edge.X1 = node.X;
-            edge.X2 = node.X;
-            edge.Y1 = node.Y + node.Radius;
-            edge.Y2 = node.Y - node.Radius;
+            UpdateLoopEdgeCoordinates(source, edge);
+            return;
         }
+
+        // Точка на границе исходного узла
+        double startX = source.X + dx * (source.Radius / distance);
+        double startY = source.Y + dy * (source.Radius / distance);
+
+        // Точка на границе целевого узла
+        double endX = target.X - dx * (target.Radius / distance);
+        double endY = target.Y - dy * (target.Radius / distance);
+
+        edge.X1 = startX;
+        edge.Y1 = startY;
+        edge.X2 = endX;
+        edge.Y2 = endY;
+    }
+
+    /// <summary>
+    /// Обновляет координаты замкнутой дуги (петли).
+    /// Рисуем вертикальную дугу: сверху узла → снизу узла.
+    /// </summary>
+    private void UpdateLoopEdgeCoordinates(GraphNode node, GraphEdge edge)
+    {
+        edge.X1 = node.X;
+        edge.Y1 = node.Y - node.Radius; // Верхняя точка окружности
+        edge.X2 = node.X;
+        edge.Y2 = node.Y + node.Radius; // Нижняя точка окружности
     }
 }

@@ -18,6 +18,7 @@ public static class NodeRenderer
             Height = node.Radius * 2,
             Tag = node // Сохраняем ссылку на модель
         };
+        Panel.SetZIndex(container, 10);
 
         var circle = new Ellipse
         {
