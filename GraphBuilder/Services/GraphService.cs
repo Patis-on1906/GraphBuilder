@@ -13,12 +13,9 @@ public class GraphService
     public GraphService(Graph graph)
     { 
         _graph = graph ?? throw new ArgumentNullException(nameof(graph));
-        RebuildIndex(); // 🔑 Инициализируем словарь при создании сервиса
+        RebuildIndex();
     }
-
-    /// <summary>
-    /// Перестраивает индекс узлов. Вызывать после загрузки из XML или массовой модификации.
-    /// </summary>
+    
     public void RebuildIndex()
     {
         _nodeById = _graph.Nodes.ToDictionary(n => n.Id);
@@ -41,7 +38,7 @@ public class GraphService
             throw new ArgumentException("Дуга не может быть вырожденной в точку");
         }
     
-        return _graph.AddEdge(srcId, trgId, x1, y1, x2, y2); // 🔑 Возвращаем дугу
+        return _graph.AddEdge(srcId, trgId, x1, y1, x2, y2);
     }
 
     public void RemoveNode(int id)
@@ -51,12 +48,11 @@ public class GraphService
         {
             throw new ArgumentException($"Узел с Id={id} не существует");
         }
-
-        // Удаляем все исходящие дуги этого узла
+        
         node.OutgoingEdges.Clear();
 
         // Удаляем все входящие дуги из других узлов
-        foreach (var otherNode in _graph.Nodes.ToList()) // ToList() для безопасного удаления во время итерации
+        foreach (var otherNode in _graph.Nodes.ToList()) 
         {
             for (int i = otherNode.OutgoingEdges.Count - 1; i >= 0; i--)
             {
@@ -66,8 +62,7 @@ public class GraphService
                 }
             }
         }
-
-        // Удаляем узел из графа и индекса
+        
         _graph.Nodes.Remove(node);
         _nodeById.Remove(id);
     }
@@ -76,8 +71,7 @@ public class GraphService
     {
         var node = GetNode(nodeId);
         if (node == null) return;
-
-        // Обновляем исходящие дуги
+        
         foreach (var edge in node.OutgoingEdges)
         {
             var targetNode = GetNode(edge.TargetNodeId);
@@ -106,19 +100,15 @@ public class GraphService
         double dx = target.X - source.X;
         double dy = target.Y - source.Y;
         double distance = Math.Sqrt(dx * dx + dy * dy);
-
-        // Если узлы почти совпадают – рисуем петлю
+        
         if (distance < 1e-6)
         {
             UpdateLoopEdgeCoordinates(source, edge);
             return;
         }
-
-        // Точка на границе исходного узла
+        
         double startX = source.X + dx * (source.Radius / distance);
         double startY = source.Y + dy * (source.Radius / distance);
-
-        // Точка на границе целевого узла
         double endX = target.X - dx * (target.Radius / distance);
         double endY = target.Y - dy * (target.Radius / distance);
 
@@ -127,16 +117,12 @@ public class GraphService
         edge.X2 = endX;
         edge.Y2 = endY;
     }
-
-    /// <summary>
-    /// Обновляет координаты замкнутой дуги (петли).
-    /// Рисуем вертикальную дугу: сверху узла → снизу узла.
-    /// </summary>
+    
     private void UpdateLoopEdgeCoordinates(GraphNode node, GraphEdge edge)
     {
         edge.X1 = node.X;
-        edge.Y1 = node.Y - node.Radius; // Верхняя точка окружности
+        edge.Y1 = node.Y - node.Radius;
         edge.X2 = node.X;
-        edge.Y2 = node.Y + node.Radius; // Нижняя точка окружности
+        edge.Y2 = node.Y + node.Radius;
     }
 }

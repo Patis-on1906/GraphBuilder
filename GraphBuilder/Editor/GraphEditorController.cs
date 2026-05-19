@@ -18,11 +18,11 @@ public class GraphEditorController
     private readonly GraphService  _graphService;
     private readonly GraphRenderer _renderer;
     private readonly EdgeCreationHandler _edgeCreator;
+    private Point _dragStart;
+    private GraphNode? _draggedNode;
     
     public GraphRenderer Renderer => _renderer;
-    public void EnableEdgeCreator() => _edgeCreator.Enable();
     public bool IsEditing { get; set; } = true;
-    public bool IsAnimating => _animationService?.IsRunning == true;
 
     public GraphEditorController(IGraphAnimationView view, Canvas canvas, Graph graph, IAnimationService animationService)
     {
@@ -35,7 +35,7 @@ public class GraphEditorController
 
         _graphService.RebuildIndex();
         
-        _edgeCreator = new EdgeCreationHandler(_canvas, _graph, _graphService, _renderer);
+        _edgeCreator = new EdgeCreationHandler(_canvas, _graphService, _renderer);
     
         _canvas.MouseRightButtonDown += Canvas_MouseRightButtonDown;
         _canvas.MouseLeftButtonDown += Canvas_MouseLeftButtonDown;
@@ -82,22 +82,35 @@ public class GraphEditorController
         _animationService?.Stop();
         IsEditing = true;
         foreach (var node in _graph.Nodes)
-        {
             _renderer.HighlightNode(node.Id, false);
-        }
-        _edgeCreator.Enable(); 
+        _edgeCreator.Enable();
+        
+        _canvas.Focus();
     }
     
     private void Canvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (!IsEditing) return;
+    
         var pos = e.GetPosition(_canvas);
-        AddNodeAt(pos.X, pos.Y);
+        var clickedNode = _renderer.HitTestNode(pos);
+    
+        if (clickedNode != null)
+        {
+            _graphService.RemoveNode(clickedNode.Id);
+            _renderer.RemoveNode(clickedNode.Id);
+        
+            // Обновляем отрисовку всех дуг, так как удаление узла влечет удаление связанных с ним дуг
+            _renderer.RefreshEdges(_graph); 
+        }
+        else
+        {
+            // Если кликнули по пустому месту — добавляем новый узел
+            AddNodeAt(pos.X, pos.Y);
+        }
+    
         e.Handled = true;
     }
-
-    private Point _dragStart;
-    private GraphNode? _draggedNode;
 
     private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -170,6 +183,8 @@ public class GraphEditorController
         {
             _canvas.ReleaseMouseCapture();
             _draggedNode = null;
+            _renderer.RefreshEdges(_graph);
+
             e.Handled = true;
         }
     }

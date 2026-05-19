@@ -14,7 +14,6 @@ namespace GraphBuilder.Editor;
 public class EdgeCreationHandler
 {
     private readonly Canvas _canvas;
-    private readonly Graph _graph;
     private readonly GraphService _graphService;
     private readonly GraphRenderer _renderer;
     
@@ -22,11 +21,11 @@ public class EdgeCreationHandler
     private Point _startBoundaryPoint;
     private Line? _tempLine;
     private bool _isCreating;
+    private bool _isEnabled = true;
 
-    public EdgeCreationHandler(Canvas canvas, Graph graph, GraphService graphService, GraphRenderer renderer)
+    public EdgeCreationHandler(Canvas canvas, GraphService graphService, GraphRenderer renderer)
     {
         _canvas = canvas;
-        _graph = graph;
         _graphService = graphService;
         _renderer = renderer;
         
@@ -37,6 +36,8 @@ public class EdgeCreationHandler
 
     private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        if (!_isEnabled) return;
+        
         if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl)) 
             return;
     
@@ -53,7 +54,7 @@ public class EdgeCreationHandler
 
     private void Canvas_MouseMove(object sender, MouseEventArgs e)
     {
-        if (!_isCreating || _tempLine == null) return;
+        if (!_isEnabled || !_isCreating || _tempLine == null) return;
         
         var pos = e.GetPosition(_canvas);
         _tempLine.X2 = pos.X;
@@ -62,7 +63,7 @@ public class EdgeCreationHandler
 
     private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
-        if (!_isCreating) return;
+        if (!_isEnabled || !_isCreating) return;
         
         var pos = e.GetPosition(_canvas);
         var targetNode = _renderer.HitTestNode(pos);
@@ -99,26 +100,29 @@ public class EdgeCreationHandler
     private void FinishCreation(GraphNode targetNode, Point endPos)
     {
         var endBoundaryPoint = CalculateBoundaryPoint(targetNode, endPos);
-        
         var newEdge = _graphService.AddEdge(
             _startNode!.Id, 
             targetNode.Id, 
             _startBoundaryPoint.X, _startBoundaryPoint.Y,
             endBoundaryPoint.X, endBoundaryPoint.Y);
-        
         _renderer.AddEdge(newEdge);
-    
+        RemoveTempLine();
         Cleanup();
     }
 
     private void CancelCreation()
+    {
+        RemoveTempLine(); 
+        Cleanup();
+    }
+    
+    private void RemoveTempLine()
     {
         if (_tempLine != null)
         {
             _canvas.Children.Remove(_tempLine);
             _tempLine = null;
         }
-        Cleanup();
     }
 
     private void Cleanup()
@@ -145,16 +149,13 @@ public class EdgeCreationHandler
     
     public void Disable()
     {
-        _canvas.MouseLeftButtonDown -= Canvas_MouseLeftButtonDown;
-        _canvas.MouseMove -= Canvas_MouseMove;
-        _canvas.MouseLeftButtonUp -= Canvas_MouseLeftButtonUp;
-        CancelCreation();
+        _isEnabled = false;
+        RemoveTempLine();      
+        CancelCreation();      
     }
-    
+
     public void Enable()
     {
-        _canvas.MouseLeftButtonDown += Canvas_MouseLeftButtonDown;
-        _canvas.MouseMove += Canvas_MouseMove;
-        _canvas.MouseLeftButtonUp += Canvas_MouseLeftButtonUp;
+        _isEnabled = true;
     }
 }

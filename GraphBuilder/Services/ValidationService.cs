@@ -30,7 +30,7 @@ namespace GraphBuilder.Services
                     if(!IsTargetNodeExist(g, edge.TargetNodeId)) { return false; }
                 }
 
-                for(int i = 0; i < local_edges_id_couter; i++)  // уникальность локальных id ветвей
+                for(int i = 0; i < local_edges_id_couter; i++)
                 {
                     for(int j = 0; j < local_edges_id_couter; j++)
                     {
@@ -40,20 +40,18 @@ namespace GraphBuilder.Services
 
 
                 int equal_id_count = 0;
-                foreach(GraphNode node_temp in g.Nodes) // уникальность ID узла
+                foreach(GraphNode node_temp in g.Nodes)
                 {
                     if(node.Id == node_temp.Id) { equal_id_count++; }
                 }
                 if(equal_id_count != 1) { return false; }
             }
 
-            if(absolute_edges_id.Count != absolute_edges_id.Distinct().Count()) { return false; }   // уникальность AbsoluteId узлов
+            if(absolute_edges_id.Count != absolute_edges_id.Distinct().Count()) { return false; }
 
             return true;
         }
-
-
-        // проверка существования узла по ID
+        
         public static bool IsTargetNodeExist(Graph graph, int target_node_id)
         {
             bool is_exist = false;
@@ -62,14 +60,6 @@ namespace GraphBuilder.Services
                 if(node.Id == target_node_id) { is_exist = true; break; }
             }
             return is_exist;
-        }
-
-
-        // проверка предиката
-        public static bool ValidateEdgePredicate(GraphEdge e, int outgoingCount)
-        {
-            if(e.Predicate >= 1 && e.Predicate <= outgoingCount) { return true; }
-            return false;
         }
     }
 }

@@ -6,9 +6,8 @@ public partial class EdgeDialog : Window
 {
     public int? ResultPredicate { get; private set; }
     public double? ResultDelay { get; private set; }
-    private readonly int _maxPredicate; // Добавлено
-
-    // Добавлен параметр maxPredicate
+    private readonly int _maxPredicate;
+    
     public EdgeDialog(int? currentPredicate = null, double? currentDelay = null, int maxPredicate = 1)
     {
         InitializeComponent();
@@ -19,7 +18,6 @@ public partial class EdgeDialog : Window
 
     private void Ok_Click(object sender, RoutedEventArgs e)
     {
-        // Исправлена проверка: теперь учитывается верхняя граница
         if (!int.TryParse(PredicateTextBox.Text, out int predicate) || predicate < 1 || predicate > _maxPredicate)
         {
             MessageBox.Show($"Предикат должен быть целым числом от 1 до {_maxPredicate}", "Ошибка");

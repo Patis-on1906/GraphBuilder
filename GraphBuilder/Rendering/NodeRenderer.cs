@@ -16,7 +16,7 @@ public static class NodeRenderer
         {
             Width = node.Radius * 2,
             Height = node.Radius * 2,
-            Tag = node // Сохраняем ссылку на модель
+            Tag = node
         };
         Panel.SetZIndex(container, 10);
 
@@ -38,11 +38,9 @@ public static class NodeRenderer
 
         container.Children.Add(circle);
         container.Children.Add(textBlock);
-
-        // Начальная позиция
+        
         UpdatePosition(container, node);
-
-        // Подписка на изменения модели
+        
         node.PropertyChanged += (sender, args) =>
         {
             if (args.PropertyName is nameof(GraphNode.X) or nameof(GraphNode.Y) or nameof(GraphNode.Radius))
@@ -60,8 +58,6 @@ public static class NodeRenderer
 
     private static void UpdatePosition(UIElement container, GraphNode node)
     {
-        // Canvas.Left/Top задают позицию ВЕРХНЕГО ЛЕВОГО угла
-        // Вычитаем радиус, чтобы центр окружности был в (X, Y)
         Canvas.SetLeft(container, node.X - node.Radius);
         Canvas.SetTop(container, node.Y - node.Radius);
     }

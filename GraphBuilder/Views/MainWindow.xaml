@@ -5,7 +5,6 @@
         WindowStartupLocation="CenterScreen">
     
     <DockPanel>
-        <!-- Верхнее меню -->
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Файл">    
                 <MenuItem Header="Создать" Click="MenuCreate_Click"/>
@@ -22,15 +21,13 @@
                 <MenuItem Header="Остановить" Click="MenuStop_Click"/>
             </MenuItem>
         </Menu>
-
-        <!-- Статус-бар -->
+        
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
                 <TextBlock x:Name="StatusTextBlock" Text="Готово. Режим редактирования активен."/>
             </StatusBarItem>
         </StatusBar>
-
-        <!-- Основная область рисования -->
+        
         <Canvas x:Name="GraphCanvas" 
                 Background="White" 
                 ClipToBounds="True"

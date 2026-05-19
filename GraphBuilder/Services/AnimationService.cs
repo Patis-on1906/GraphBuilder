@@ -13,8 +13,6 @@ namespace GraphBuilder.Services
         private Task _animationTask;
         private bool _isRunning;
 
-        public bool IsRunning => _isRunning;
-
         public void Start(Graph graph, IGraphAnimationView view, double durationSeconds = 3600)
         {
             if (_isRunning) Stop();
@@ -80,14 +78,12 @@ namespace GraphBuilder.Services
                     view.NotifyAnimationStepCompleted(currentNode.Id, targetNode.Id, selectedEdge.AbsoluteId);
                     currentNode = targetNode;
                 }
-
-                // ✅ помечаем нормальное завершение только если вышли по времени, а не по break
+                
                 if (_isRunning)
                     finishedNormally = true;
             }
             catch (OperationCanceledException)
             {
-                // остановка по кнопке «Остановить» — не ошибка
             }
             catch (Exception ex)
             {
@@ -100,7 +96,7 @@ namespace GraphBuilder.Services
                 _isRunning = false;
 
                 if (finishedNormally)
-                    view.NotifyAnimationFinished(); // ✅ только при штатном завершении
+                    view.NotifyAnimationFinished();
             }
         }
     }

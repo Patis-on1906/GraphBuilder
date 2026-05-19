@@ -32,11 +32,10 @@ public partial class MainWindow : Window, IGraphAnimationView
         _controller.Renderer.HighlightNode(nodeId, false);
     });
 
-    public void NotifyAnimationFinished() => Dispatcher.Invoke(() => 
+    public void NotifyAnimationFinished() => Dispatcher.Invoke(() =>
     {
+        _controller.StopAnimation();
         StatusTextBlock.Text = "✓ Анимация завершена. Режим редактирования.";
-        _controller.IsEditing = true;
-        _controller.EnableEdgeCreator();
     });
 
     public void NotifyAnimationStepCompleted(int fromNodeId, int toNodeId, int edgeId) => Dispatcher.Invoke(() =>

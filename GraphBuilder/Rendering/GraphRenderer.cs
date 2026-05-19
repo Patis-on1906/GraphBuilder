@@ -63,18 +63,6 @@ public class GraphRenderer
         _edgeViews[edge.AbsoluteId] = visuals;
     }
 
-    public void RemoveEdge(int edgeAbsoluteId)
-    {
-        if (_edgeViews.TryGetValue(edgeAbsoluteId, out var visuals))
-        {
-            _canvas.Children.Remove(visuals.HitTestLine);
-            _canvas.Children.Remove(visuals.MainLine);
-            _canvas.Children.Remove(visuals.ArrowHead);
-            _canvas.Children.Remove(visuals.PredicateText);
-            _edgeViews.Remove(edgeAbsoluteId);
-        }
-    }
-
     public void RemoveNode(int nodeId)
     {
         if (_nodeViews.TryGetValue(nodeId, out var uiElement))
@@ -86,16 +74,16 @@ public class GraphRenderer
     
     public void RefreshEdges(Graph graph)
     {
-        // Удаляем старые визуалы дуг
         foreach (var visuals in _edgeViews.Values)
         {
             _canvas.Children.Remove(visuals.HitTestLine);
             _canvas.Children.Remove(visuals.MainLine);
             _canvas.Children.Remove(visuals.PredicateText);
+            _canvas.Children.Remove(visuals.ArrowHead);
         }
         _edgeViews.Clear();
-    
-        // Создаём новые с правильной подпиской
+
+        // Заново перерисовываем актуальные дуги для всех существующих узлов
         foreach (var node in graph.Nodes)
         {
             foreach (var edge in node.OutgoingEdges)
@@ -159,8 +147,7 @@ public class GraphRenderer
         double distance = Math.Sqrt(Math.Pow(point.X - closestX, 2) + Math.Pow(point.Y - closestY, 2));
         return distance <= tolerance;
     }
-
-    // Методы для анимации
+    
     public void HighlightNode(int nodeId, bool isHighlighted)
     {
         if (_nodeViews.TryGetValue(nodeId, out var container))
@@ -168,15 +155,4 @@ public class GraphRenderer
             NodeRenderer.Highlight(container, isHighlighted);
         }
     }
-
-    public void HighlightEdge(int edgeId, bool isHighlighted)
-    {
-        if (_edgeViews.TryGetValue(edgeId, out var visuals))
-        {
-            EdgeRenderer.Highlight(visuals, isHighlighted);
-        }
-    }
-
-    public Grid? GetNodeView(int nodeId) => _nodeViews.TryGetValue(nodeId, out var view) ? view : null;
-    public EdgeRenderer.EdgeVisuals? GetEdgeView(int edgeId) => _edgeViews.TryGetValue(edgeId, out var view) ? view : null;
 }

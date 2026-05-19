@@ -14,7 +14,6 @@ public class GraphNode : INotifyPropertyChanged
     [XmlArray("OutgoingEdges")]
     [XmlArrayItem("OutgoingEdge")]
     public ObservableCollection<GraphEdge> OutgoingEdges { get; } = new();
-    public bool IsHighlighted { get; set; } = false;
 
     private double _x;
     [XmlAttribute("X")]
