@@ -57,13 +57,24 @@ namespace GraphBuilder.Services
                         break;
                     }
 
-                    int selectedPredicate = random.Next(1, outgoingEdges.Count + 1);
+                    int selectedPredicate;
+                    try
+                    {
+                        selectedPredicate = NodeCodeEvaluator.Evaluate(currentNode.Code, outgoingEdges.Count);
+                    }
+                    catch (Exception ex)
+                    {
+                        view.ShowAnimationError($"Ошибка в коде узла {currentNode.Id}: {ex.Message}");
+                        break;
+                    }
+
                     var selectedEdge = outgoingEdges.FirstOrDefault(e => e.Predicate == selectedPredicate);
                     if (selectedEdge == null)
                     {
-                        view.ShowAnimationError($"У узла {currentNode.Id} нет дуги с предикатом {selectedPredicate}");
+                        view.ShowAnimationError($"Узел {currentNode.Id}: нет дуги с предикатом {selectedPredicate}");
                         break;
                     }
+                    
 
                     var targetNode = graph.Nodes.FirstOrDefault(n => n.Id == selectedEdge.TargetNodeId);
                     if (targetNode == null)

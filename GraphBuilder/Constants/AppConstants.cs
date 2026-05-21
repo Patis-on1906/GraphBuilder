@@ -11,5 +11,5 @@ public static class AppConstants
     public static readonly Brush HighlightEdgeBrush = Brushes.Red;
     
     public const double HitTestTolerance = 5.0; // Допуск в пикселях для клика по границе узла/дуги
-    public const string DefaultNodeCode = "GEN_RANDOM(1,N)";
+    public const string DefaultNodeCode = "random(1,N)";
 }
