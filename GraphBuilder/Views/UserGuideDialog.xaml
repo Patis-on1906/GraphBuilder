@@ -1,0 +1,48 @@
+<Window x:Class="GraphBuilder.Views.UserGuideDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Руководство пользователя" 
+        Height="500" Width="600"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="15">
+            <TextBlock Text="Руководство по работе с Графопостроителем" 
+                       FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+            
+            <TextBlock Text="Основные действия" FontSize="14" FontWeight="Bold" Margin="0,10,0,5"/>
+            <TextBlock TextWrapping="Wrap" Margin="0,0,0,10">
+                • Добавление вершины: щелчок ПКМ на свободном месте Canvas.
+                • Перемещение вершины: зажать ЛКМ на вершине и перетащить.
+                • Удаление вершины: щелчок ПКМ по вершине (кроме вершины 1).
+                • Создание дуги: зажать Ctrl → нажать ЛКМ на исходной вершине → протянуть к целевой → отпустить.
+                • Редактирование кода вершины: двойной щелчок ЛКМ по вершине.
+                • Редактирование дуги: двойной щелчок ЛКМ по линии дуги.
+            </TextBlock>
+
+            <TextBlock Text="Программный код вершины" FontSize="14" FontWeight="Bold" Margin="0,10,0,5"/>
+            <TextBlock TextWrapping="Wrap" Margin="0,0,0,10">
+                Поддерживаемые выражения:
+                • Константа: например, 1 – всегда выбирает дугу с предикатом 1.
+                • random(1,N) – случайное число от 1 до N (N = количество исходящих дуг).
+                • choose(1,3,5) – случайный выбор из перечисленных чисел.
+                • Простая арифметика: 1+2, 3-1, 2*2.
+            </TextBlock>
+
+            <TextBlock Text="Анимация" FontSize="14" FontWeight="Bold" Margin="0,10,0,5"/>
+            <TextBlock TextWrapping="Wrap" Margin="0,0,0,10">
+                • Перед запуском убедитесь, что есть вершина с Id=1 и у неё есть исходящие дуги.
+                • Меню «Граф → Настройки анимации» – установите общую длительность.
+                • Меню «Управление → Выполнить» – запуск анимации.
+                • Меню «Управление → Остановить» – досрочная остановка.
+            </TextBlock>
+
+            <TextBlock Text="Файловые операции" FontSize="14" FontWeight="Bold" Margin="0,10,0,5"/>
+            <TextBlock TextWrapping="Wrap">
+                • Создать – очищает текущий граф.
+                • Открыть – загружает граф из XML-файла.
+                • Сохранить – сохраняет текущий граф в XML.
+            </TextBlock>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

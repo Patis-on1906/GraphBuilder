@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Graph>
+    <Nodes>
+        <Node Id="1" X="150" Y="200" Radius="30" Code="GEN_RANDOM(1,N)">
+            <Edge AbsoluteId="1" LocalId="1" TargetNodeId="2" X1="180" Y1="200" X2="240" Y2="200" Predicate="1" Delay="2.0" />
+            <Edge AbsoluteId="2" LocalId="2" TargetNodeId="3" X1="170" Y1="215" X2="230" Y2="280" Predicate="2" Delay="1.5" />
+        </Node>
+        <Node Id="2" X="300" Y="150" Radius="30" Code="GEN_RANDOM(1,N)">
+            <Edge AbsoluteId="3" LocalId="1" TargetNodeId="1" X1="270" Y1="150" X2="210" Y2="180" Predicate="1" Delay="2.0" />
+        </Node>
+        <Node Id="3" X="300" Y="300" Radius="30" Code="GEN_RANDOM(1,N)" />
+    </Nodes>
+</Graph>

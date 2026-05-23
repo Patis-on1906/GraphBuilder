@@ -1,0 +1,38 @@
+﻿<Window x:Class="GraphBuilder.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Графопостроитель" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen">
+    
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Команды">
+                <MenuItem Header="Создать" Click="MenuCreate_Click"/>
+                <MenuItem Header="Открыть..." Click="MenuOpen_Click"/>
+                <MenuItem Header="Сохранить..." Click="MenuSave_Click"/>
+                <Separator/>
+                <MenuItem Header="Выход" Click="MenuExit_Click"/>
+            </MenuItem>
+            
+            <MenuItem Header="Анимация" Click="MenuAnimationSettings_Click"/>
+            
+            <MenuItem Header="Выполнить" Click="MenuStart_Click"/>
+            <MenuItem Header="Остановить" Click="MenuStop_Click"/>
+            
+            <MenuItem Header="Справка" Click="MenuHelp_Click"/>
+        </Menu>
+        
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusTextBlock" Text="Готово. Режим редактирования активен."/>
+            </StatusBarItem>
+        </StatusBar>
+        
+        <Canvas x:Name="GraphCanvas" 
+                Background="White" 
+                ClipToBounds="True"
+                Margin="4"
+                Focusable="True"
+                KeyboardNavigation.IsTabStop="True"/>
+    </DockPanel>
+</Window>
