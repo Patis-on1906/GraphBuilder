@@ -9,8 +9,7 @@ public class Graph
     [XmlArray("Nodes")]
     [XmlArrayItem("Node")]
     public ObservableCollection<GraphNode> Nodes { get; } = new();
-
-    // Счётчики для генерации уникальных ID
+    
     [XmlAttribute("NextNodeID")]
     public int NextNodeId { get; set; } = 1;
     [XmlAttribute("NextEdgeAbsId")]
@@ -60,7 +59,7 @@ public class Graph
     /// </summary>
     public void CopyFrom(Graph source)
     {
-        Clear(); // Очищаем текущий граф
+        Clear();
     
         // Копируем счётчики
         NextNodeId = source.NextNodeId;

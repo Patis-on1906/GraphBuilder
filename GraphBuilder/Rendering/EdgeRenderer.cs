@@ -9,14 +9,14 @@ namespace GraphBuilder.Rendering;
 
 public static class EdgeRenderer
 {
-    // Создаёт все визуальные элементы дуги и возвращает контейнер для них
+    // Создаёт все визуальные элементы дуги и возвращает контейнер для них.
     public static EdgeVisuals Create(GraphEdge edge)
     {
         var mainLine = new Line
         {
             X1 = edge.X1, Y1 = edge.Y1,
             X2 = edge.X2, Y2 = edge.Y2,
-            Stroke = AppConstants.DefaultEdgeBrush,
+            Stroke = AppConstants.s_DefaultEdgeBrush,
             StrokeThickness = 2,
             Tag = edge
         };
@@ -46,15 +46,15 @@ public static class EdgeRenderer
         
         var arrowHead = new Polygon
         {
-            Fill = AppConstants.DefaultEdgeBrush,
-            Stroke = AppConstants.DefaultEdgeBrush,
+            Fill = AppConstants.s_DefaultEdgeBrush,
+            Stroke = AppConstants.s_DefaultEdgeBrush,
             StrokeThickness = 1,
             Tag = edge
         };
         Panel.SetZIndex(arrowHead, 1);
         UpdateArrowHeadPoints(arrowHead, edge);
 
-        // Подписка на изменения координат
+        // Подписка на изменения координат.
         edge.PropertyChanged += (sender, args) =>
         {
             if (args.PropertyName is nameof(GraphEdge.X1) or nameof(GraphEdge.Y1) or
@@ -90,23 +90,6 @@ public static class EdgeRenderer
         Canvas.SetLeft(text, midX);
         Canvas.SetTop(text, midY);
     }
-
-    public static void Highlight(EdgeVisuals visuals, bool isHighlighted)
-    {
-        var brush = isHighlighted ? AppConstants.HighlightEdgeBrush : AppConstants.DefaultEdgeBrush;
-        var thickness = isHighlighted ? 4 : 2;
-
-        if (visuals?.MainLine != null)
-        {
-            visuals.MainLine.Stroke = brush;
-            visuals.MainLine.StrokeThickness = thickness;
-        }
-        if (visuals?.ArrowHead != null)
-        {
-            visuals.ArrowHead.Fill = brush;
-            visuals.ArrowHead.Stroke = brush;
-        }
-    }
     
     private static void UpdateArrowHeadPoints(Polygon arrow, GraphEdge edge)
     {
@@ -115,25 +98,23 @@ public static class EdgeRenderer
         double len = Math.Sqrt(dx * dx + dy * dy);
         if (len < 0.001) return;
 
-        double ux = dx / len; // единичный вектор вдоль дуги
+        double ux = dx / len;
         double uy = dy / len;
 
         const double arrowLength = 12.0;
         const double arrowWidth  = 6.0;
-
-        // База стрелки (отступ от конца)
+        
         double bx = edge.X2 - ux * arrowLength;
         double by = edge.Y2 - uy * arrowLength;
-
-        // Боковые точки (перпендикуляр)
+        
         double px = -uy * arrowWidth;
         double py =  ux * arrowWidth;
 
         arrow.Points = new PointCollection
         {
-            new Point(edge.X2, edge.Y2),       // вершина стрелки
-            new Point(bx + px, by + py),       // левое крыло
-            new Point(bx - px, by - py)        // правое крыло
+            new Point(edge.X2, edge.Y2),       
+            new Point(bx + px, by + py),
+            new Point(bx - px, by - py)
         };
     }
 
@@ -147,6 +128,6 @@ public static class EdgeRenderer
         public Line MainLine { get; set; } = null!;
         public Line HitTestLine { get; set; } = null!;
         public TextBlock PredicateText { get; set; } = null!;
-        public Polygon ArrowHead { get; set; } = null!;  // ✅ новое поле
+        public Polygon ArrowHead { get; set; } = null!;
     }
 }

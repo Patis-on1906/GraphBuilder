@@ -5,38 +5,35 @@ namespace GraphBuilder.Services;
 
 public static class NodeCodeEvaluator
 {
-    private static readonly Random _random = new Random();
+    private static readonly Random s_random = new Random();
 
-    /// <summary>
-    /// Вычисляет код вершины и возвращает целое число — желаемый предикат (1..maxPredicate).
-    /// </summary>
     public static int Evaluate(string code, int maxPredicate)
     {
         if (string.IsNullOrWhiteSpace(code))
-            return new Random().Next(1, maxPredicate + 1); // по умолчанию случайно
+            return s_random.Next(1, maxPredicate + 1);
 
-        // Убираем пробелы
         code = code.Trim();
 
-        // 1. Попробуем распарсить как число
-        if (int.TryParse(code, out int constValue))
-        {
-            return Clamp(constValue, maxPredicate);
-        }
+        // Замена N (с учётом регистра) на реальное количество исходящих дуг.
+        string processedCode = Regex.Replace(code, @"\bN\b", maxPredicate.ToString(), RegexOptions.IgnoreCase);
 
-        // 2. Функция random(минимум, максимум)
-        var randomMatch = Regex.Match(code, @"random\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)", RegexOptions.IgnoreCase);
+        // Число.
+        if (int.TryParse(processedCode, out int constValue))
+            return Clamp(constValue, maxPredicate);
+
+        // Функция random(минимум, максимум) – допускаем пробелы.
+        var randomMatch = Regex.Match(processedCode, @"random\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)", RegexOptions.IgnoreCase);
         if (randomMatch.Success)
         {
             int min = int.Parse(randomMatch.Groups[1].Value);
             int max = int.Parse(randomMatch.Groups[2].Value);
             if (min > max) (min, max) = (max, min);
-            int value = _random.Next(min, max + 1);
+            int value = s_random.Next(min, max + 1);
             return Clamp(value, maxPredicate);
         }
 
-        // 3. Функция choose(список) – пример: choose(1,3,2)
-        var chooseMatch = Regex.Match(code, @"choose\s*\(\s*([\d\s,]+)\s*\)", RegexOptions.IgnoreCase);
+        // Функция choose(...).
+        var chooseMatch = Regex.Match(processedCode, @"choose\s*\(\s*([\d\s,]+)\s*\)", RegexOptions.IgnoreCase);
         if (chooseMatch.Success)
         {
             string argsStr = chooseMatch.Groups[1].Value;
@@ -49,13 +46,13 @@ public static class NodeCodeEvaluator
             }
             if (numbers.Count > 0)
             {
-                int idx = _random.Next(0, numbers.Count);
+                int idx = s_random.Next(0, numbers.Count);
                 return Clamp(numbers[idx], maxPredicate);
             }
         }
 
-        // 4. Поддержка простого выражения вида "1+2", "3-1", "2*2" (без скобок)
-        var exprMatch = Regex.Match(code, @"^(\d+)\s*([+\-*])\s*(\d+)$");
+        // Простое выражение вида "1+2", "3-1", "2*2".
+        var exprMatch = Regex.Match(processedCode, @"^(\d+)\s*([+\-*])\s*(\d+)$");
         if (exprMatch.Success)
         {
             int a = int.Parse(exprMatch.Groups[1].Value);
@@ -71,7 +68,6 @@ public static class NodeCodeEvaluator
             return Clamp(result, maxPredicate);
         }
 
-        // Если ничего не подошло – кидаем исключение (или возвращаем случайное)
         throw new ArgumentException($"Не удалось интерпретировать код: {code}");
     }
 

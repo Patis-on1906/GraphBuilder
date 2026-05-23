@@ -20,7 +20,6 @@ public partial class MainWindow : Window, IGraphAnimationView
     }
 
     #region IGraphAnimationView
-
     public void HighlightNode(int nodeId) => Dispatcher.Invoke(() =>
     {
         _controller.Renderer.HighlightNode(nodeId, true);
@@ -48,7 +47,6 @@ public partial class MainWindow : Window, IGraphAnimationView
     #endregion
 
     #region Menu Handlers
-
     private void MenuCreate_Click(object sender, RoutedEventArgs e)
     {
         _controller.CreateNewGraph();
@@ -126,6 +124,11 @@ public partial class MainWindow : Window, IGraphAnimationView
         _controller.StopAnimation();
         StatusTextBlock.Text = "■ Анимация остановлена. Режим редактирования.";
     }
-
+    
+    private void MenuHelp_Click(object sender, RoutedEventArgs e)
+    {
+        var helpWindow = new UserGuideDialog { Owner = this };
+        helpWindow.ShowDialog();
+    }
     #endregion
 }

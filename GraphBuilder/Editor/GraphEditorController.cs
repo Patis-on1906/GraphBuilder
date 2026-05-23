@@ -91,24 +91,29 @@ public class GraphEditorController
     private void Canvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (!IsEditing) return;
-    
+
         var pos = e.GetPosition(_canvas);
         var clickedNode = _renderer.HitTestNode(pos);
-    
+
         if (clickedNode != null)
         {
+            if (clickedNode.Id == 1)
+            {
+                MessageBox.Show("Узел с номером 1 является стартовым и не может быть удалён.",
+                    "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                e.Handled = true;
+                return;
+            }
+
             _graphService.RemoveNode(clickedNode.Id);
             _renderer.RemoveNode(clickedNode.Id);
-        
-            // Обновляем отрисовку всех дуг, так как удаление узла влечет удаление связанных с ним дуг
-            _renderer.RefreshEdges(_graph); 
+            _renderer.RefreshEdges(_graph);
         }
         else
         {
-            // Если кликнули по пустому месту — добавляем новый узел
             AddNodeAt(pos.X, pos.Y);
         }
-    
+
         e.Handled = true;
     }
 
@@ -122,10 +127,10 @@ public class GraphEditorController
         {
             HandleDoubleClick(pos);
             e.Handled = true;
-            return; // Прерываем, чтобы не сработал одинарный клик
+            return;
         }
 
-        // Одинарный клик: начало перетаскивания узла
+        // Одинарный клик: начало перетаскивания узла.
         _draggedNode = _renderer.HitTestNode(pos);
         if (_draggedNode != null)
         {

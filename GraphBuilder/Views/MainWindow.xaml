@@ -6,20 +6,20 @@
     
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="Файл">    
+            <MenuItem Header="Команды">
                 <MenuItem Header="Создать" Click="MenuCreate_Click"/>
                 <MenuItem Header="Открыть..." Click="MenuOpen_Click"/>
                 <MenuItem Header="Сохранить..." Click="MenuSave_Click"/>
                 <Separator/>
                 <MenuItem Header="Выход" Click="MenuExit_Click"/>
             </MenuItem>
-            <MenuItem Header="Граф">
-                <MenuItem Header="Настройки анимации" Click="MenuAnimationSettings_Click"/>
-            </MenuItem>
-            <MenuItem Header="Управление">
-                <MenuItem Header="Выполнить" Click="MenuStart_Click"/>
-                <MenuItem Header="Остановить" Click="MenuStop_Click"/>
-            </MenuItem>
+            
+            <MenuItem Header="Анимация" Click="MenuAnimationSettings_Click"/>
+            
+            <MenuItem Header="Выполнить" Click="MenuStart_Click"/>
+            <MenuItem Header="Остановить" Click="MenuStop_Click"/>
+            
+            <MenuItem Header="Справка" Click="MenuHelp_Click"/>
         </Menu>
         
         <StatusBar DockPanel.Dock="Bottom">

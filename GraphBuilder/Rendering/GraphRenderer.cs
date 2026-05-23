@@ -28,7 +28,7 @@ public class GraphRenderer
     {
         Clear();
 
-        // Сначала дуги (чтобы были под узлами)
+        // Сначала дуги (чтобы были под узлами).
         foreach (var node in graph.Nodes)
         {
             foreach (var edge in node.OutgoingEdges)
@@ -36,8 +36,7 @@ public class GraphRenderer
                 AddEdge(edge);
             }
         }
-
-        // Затем узлы (поверх дуг)
+        
         foreach (var node in graph.Nodes)
         {
             AddNode(node);
@@ -83,7 +82,7 @@ public class GraphRenderer
         }
         _edgeViews.Clear();
 
-        // Заново перерисовываем актуальные дуги для всех существующих узлов
+        // Заново перерисовываем актуальные дуги для всех существующих узлов.
         foreach (var node in graph.Nodes)
         {
             foreach (var edge in node.OutgoingEdges)

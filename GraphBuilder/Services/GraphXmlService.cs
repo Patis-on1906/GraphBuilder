@@ -3,8 +3,8 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Xml;
 
-
 namespace GraphBuilder.Services;
+
 public class GraphXmlService
 {
     public static void Save(out string errorMessage, Graph graph, string filename = "Graph.xml")

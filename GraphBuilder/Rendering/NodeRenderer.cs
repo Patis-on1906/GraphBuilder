@@ -22,7 +22,7 @@ public static class NodeRenderer
 
         var circle = new Ellipse
         {
-            Fill = AppConstants.DefaultNodeBrush,
+            Fill = AppConstants.s_DefaultNodeBrush,
             Stroke = Brushes.Black,
             StrokeThickness = 2
         };
@@ -67,8 +67,8 @@ public static class NodeRenderer
         if (container?.Children[0] is Ellipse circle)
         {
             circle.Fill = isHighlighted 
-                ? AppConstants.HighlightNodeBrush 
-                : AppConstants.DefaultNodeBrush;
+                ? AppConstants.s_HighlightNodeBrush 
+                : AppConstants.s_DefaultNodeBrush;
         }
     }
 }

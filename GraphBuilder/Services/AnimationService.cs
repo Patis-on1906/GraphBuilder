@@ -43,7 +43,6 @@ namespace GraphBuilder.Services
                 }
 
                 var startTime = DateTime.UtcNow;
-                var random = new Random();
 
                 while (_isRunning && (DateTime.UtcNow - startTime).TotalSeconds < durationSeconds)
                 {
@@ -74,7 +73,6 @@ namespace GraphBuilder.Services
                         view.ShowAnimationError($"Узел {currentNode.Id}: нет дуги с предикатом {selectedPredicate}");
                         break;
                     }
-                    
 
                     var targetNode = graph.Nodes.FirstOrDefault(n => n.Id == selectedEdge.TargetNodeId);
                     if (targetNode == null)

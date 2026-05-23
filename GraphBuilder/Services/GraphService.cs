@@ -21,7 +21,7 @@ public class GraphService
         _nodeById = _graph.Nodes.ToDictionary(n => n.Id);
     }
 
-    public GraphNode? GetNode(int id) => 
+    private GraphNode? GetNode(int id) => 
         _nodeById.TryGetValue(id, out var node) ? node : null;
 
     public GraphNode AddNode(double x, double y)
@@ -51,7 +51,7 @@ public class GraphService
         
         node.OutgoingEdges.Clear();
 
-        // Удаляем все входящие дуги из других узлов
+        // Удаляем все входящие дуги из других узлов.
         foreach (var otherNode in _graph.Nodes.ToList()) 
         {
             for (int i = otherNode.OutgoingEdges.Count - 1; i >= 0; i--)
@@ -79,7 +79,7 @@ public class GraphService
                 UpdateEdgeEndpoints(node, targetNode, edge);
         }
 
-        // Обновляем входящие дуги (ищем все дуги, у которых TargetNodeId == nodeId)
+        // Обновляем входящие дуги.
         foreach (var otherNode in _graph.Nodes)
         {
             if (otherNode.Id == nodeId) continue;

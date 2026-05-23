@@ -9,7 +9,7 @@ public partial class NodeCodeDialog : Window
     public NodeCodeDialog(string? currentCode = null)
     {
         InitializeComponent();
-        CodeTextBox.Text = currentCode ?? "GEN_RANDOM(1,N)";
+        CodeTextBox.Text = currentCode ?? "random(1,N)";
     }
 
     private void Ok_Click(object sender, RoutedEventArgs e)

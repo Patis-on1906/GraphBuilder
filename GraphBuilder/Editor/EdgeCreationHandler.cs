@@ -10,7 +10,6 @@ using GraphBuilder.Services;
 
 namespace GraphBuilder.Editor;
 
-// Обработчик создания дуги
 public class EdgeCreationHandler
 {
     private readonly Canvas _canvas;
@@ -142,7 +141,6 @@ public class EdgeCreationHandler
         if (distance < 0.001)
             return new Point(node.X, node.Y - node.Radius);
         
-        // Нормализуем вектор и умножаем на радиус
         double ratio = node.Radius / distance;
         return new Point(node.X + dx * ratio, node.Y + dy * ratio);
     }
