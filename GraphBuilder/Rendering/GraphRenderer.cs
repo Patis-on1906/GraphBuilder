@@ -6,6 +6,10 @@ using GraphBuilder.Models;
 
 namespace GraphBuilder.Rendering;
 
+/// <summary>
+/// Координирует отрисовку всех узлов и дуг графа на Canvas.
+/// Хранит словари визуальных элементов для быстрого доступа.
+/// </summary>
 public class GraphRenderer
 {
     private readonly Canvas _canvas;

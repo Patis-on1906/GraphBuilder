@@ -3,6 +3,10 @@ using System.Xml.Serialization;
 
 namespace GraphBuilder.Models;
 
+/// <summary>
+/// Представляет ориентированный граф, используемый как диаграмма состояний конечного автомата.
+/// Содержит коллекцию узлов и счётчики для генерации уникальных идентификаторов.
+/// </summary>
 [XmlRoot("Graph")]
 public class Graph
 {

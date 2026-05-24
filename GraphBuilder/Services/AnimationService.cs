@@ -5,108 +5,111 @@ using System.Threading.Tasks;
 using GraphBuilder.Interfaces;
 using GraphBuilder.Models;
 
-namespace GraphBuilder.Services
+namespace GraphBuilder.Services;
+
+/// <summary>
+/// Сервис анимации конечного автомата. Запускает асинхронный процесс,
+/// последовательно переходя по дугам в соответствии с кодом вершин.
+/// </summary>
+public class AnimationService : IAnimationService
 {
-    public class AnimationService : IAnimationService
+    private CancellationTokenSource _cts;
+    private Task _animationTask;
+    private bool _isRunning;
+
+    public void Start(Graph graph, IGraphAnimationView view, double durationSeconds = 3600)
     {
-        private CancellationTokenSource _cts;
-        private Task _animationTask;
-        private bool _isRunning;
+        if (_isRunning) Stop();
 
-        public void Start(Graph graph, IGraphAnimationView view, double durationSeconds = 3600)
+        _cts = new CancellationTokenSource();
+        _isRunning = true;
+        _animationTask = RunAnimation(graph, view, durationSeconds, _cts.Token);
+    }
+
+    public void Stop()
+    {
+        if (!_isRunning) return;
+        _cts?.Cancel();
+        _isRunning = false;
+    }
+
+    private async Task RunAnimation(Graph graph, IGraphAnimationView view,
+        double durationSeconds, CancellationToken token)
+    {
+        bool finishedNormally = false;
+        try
         {
-            if (_isRunning) Stop();
+            var currentNode = graph.Nodes.FirstOrDefault(n => n.Id == 1);
+            if (currentNode == null)
+            {
+                view.ShowAnimationError("Стартовый узел (Id=1) не найден в графе");
+                return;
+            }
 
-            _cts = new CancellationTokenSource();
-            _isRunning = true;
-            _animationTask = RunAnimation(graph, view, durationSeconds, _cts.Token);
+            var startTime = DateTime.UtcNow;
+
+            while (_isRunning && (DateTime.UtcNow - startTime).TotalSeconds < durationSeconds)
+            {
+                view.HighlightNode(currentNode.Id);
+                view.NotifyAnimationStepCompleted(-1, currentNode.Id, -1);
+
+                var outgoingEdges = currentNode.OutgoingEdges;
+                if (outgoingEdges.Count == 0)
+                {
+                    view.ShowAnimationError($"Узел {currentNode.Id} не имеет исходящих дуг — анимация остановлена");
+                    break;
+                }
+
+                int selectedPredicate;
+                try
+                {
+                    selectedPredicate = NodeCodeEvaluator.Evaluate(currentNode.Code, outgoingEdges.Count);
+                }
+                catch (Exception ex)
+                {
+                    view.ShowAnimationError($"Ошибка в коде узла {currentNode.Id}: {ex.Message}");
+                    break;
+                }
+
+                var selectedEdge = outgoingEdges.FirstOrDefault(e => e.Predicate == selectedPredicate);
+                if (selectedEdge == null)
+                {
+                    view.ShowAnimationError($"Узел {currentNode.Id}: нет дуги с предикатом {selectedPredicate}");
+                    break;
+                }
+
+                var targetNode = graph.Nodes.FirstOrDefault(n => n.Id == selectedEdge.TargetNodeId);
+                if (targetNode == null)
+                {
+                    view.ShowAnimationError($"Целевой узел {selectedEdge.TargetNodeId} не существует");
+                    break;
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(selectedEdge.DelaySeconds), token);
+
+                view.UnhighlightNode(currentNode.Id);
+                view.NotifyAnimationStepCompleted(currentNode.Id, targetNode.Id, selectedEdge.AbsoluteId);
+                currentNode = targetNode;
+            }
+            
+            if (_isRunning)
+                finishedNormally = true;
         }
-
-        public void Stop()
+        catch (OperationCanceledException)
         {
-            if (!_isRunning) return;
-            _cts?.Cancel();
+        }
+        catch (Exception ex)
+        {
+            view.ShowAnimationError($"Ошибка анимации: {ex.Message}");
+        }
+        finally
+        {
+            foreach (var node in graph.Nodes)
+                view.UnhighlightNode(node.Id);
             _isRunning = false;
-        }
 
-        private async Task RunAnimation(Graph graph, IGraphAnimationView view,
-            double durationSeconds, CancellationToken token)
-        {
-            bool finishedNormally = false;
-            try
-            {
-                var currentNode = graph.Nodes.FirstOrDefault(n => n.Id == 1);
-                if (currentNode == null)
-                {
-                    view.ShowAnimationError("Стартовый узел (Id=1) не найден в графе");
-                    return;
-                }
-
-                var startTime = DateTime.UtcNow;
-
-                while (_isRunning && (DateTime.UtcNow - startTime).TotalSeconds < durationSeconds)
-                {
-                    view.HighlightNode(currentNode.Id);
-                    view.NotifyAnimationStepCompleted(-1, currentNode.Id, -1);
-
-                    var outgoingEdges = currentNode.OutgoingEdges;
-                    if (outgoingEdges.Count == 0)
-                    {
-                        view.ShowAnimationError($"Узел {currentNode.Id} не имеет исходящих дуг — анимация остановлена");
-                        break;
-                    }
-
-                    int selectedPredicate;
-                    try
-                    {
-                        selectedPredicate = NodeCodeEvaluator.Evaluate(currentNode.Code, outgoingEdges.Count);
-                    }
-                    catch (Exception ex)
-                    {
-                        view.ShowAnimationError($"Ошибка в коде узла {currentNode.Id}: {ex.Message}");
-                        break;
-                    }
-
-                    var selectedEdge = outgoingEdges.FirstOrDefault(e => e.Predicate == selectedPredicate);
-                    if (selectedEdge == null)
-                    {
-                        view.ShowAnimationError($"Узел {currentNode.Id}: нет дуги с предикатом {selectedPredicate}");
-                        break;
-                    }
-
-                    var targetNode = graph.Nodes.FirstOrDefault(n => n.Id == selectedEdge.TargetNodeId);
-                    if (targetNode == null)
-                    {
-                        view.ShowAnimationError($"Целевой узел {selectedEdge.TargetNodeId} не существует");
-                        break;
-                    }
-
-                    await Task.Delay(TimeSpan.FromSeconds(selectedEdge.DelaySeconds), token);
-
-                    view.UnhighlightNode(currentNode.Id);
-                    view.NotifyAnimationStepCompleted(currentNode.Id, targetNode.Id, selectedEdge.AbsoluteId);
-                    currentNode = targetNode;
-                }
-                
-                if (_isRunning)
-                    finishedNormally = true;
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (Exception ex)
-            {
-                view.ShowAnimationError($"Ошибка анимации: {ex.Message}");
-            }
-            finally
-            {
-                foreach (var node in graph.Nodes)
-                    view.UnhighlightNode(node.Id);
-                _isRunning = false;
-
-                if (finishedNormally)
-                    view.NotifyAnimationFinished();
-            }
+            if (finishedNormally)
+                view.NotifyAnimationFinished();
         }
     }
 }

@@ -9,6 +9,11 @@ using GraphBuilder.Views;
 
 namespace GraphBuilder.Editor;
 
+/// <summary>
+/// Центральный контроллер, координирующий работу редактора.
+/// Обрабатывает события мыши (добавление, перемещение, удаление узлов, создание дуг),
+/// управляет режимами редактирования/анимации, связывает сервисы и рендеринг.
+/// </summary>
 public class GraphEditorController
 {
     private readonly IGraphAnimationView _view;
@@ -59,6 +64,11 @@ public class GraphEditorController
         _renderer.AddNode(node);
     }
 
+    /// <summary>
+    /// Запускает анимацию, если граф не пуст и существует узел 1.
+    /// Отключает режим редактирования и блокирует создание дуг.
+    /// </summary>
+    /// <param name="durationSeconds">Длительность анимации в секундах.</param>
     public void StartAnimation(double durationSeconds)
     {
         if (!IsEditing) return;

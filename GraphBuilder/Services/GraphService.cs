@@ -5,6 +5,10 @@ using GraphBuilder.Models;
 
 namespace GraphBuilder.Services;
 
+/// <summary>
+/// Сервис для управления графом: добавление/удаление узлов и дуг,
+/// пересчёт координат дуг при перемещении узлов.
+/// </summary>
 public class GraphService
 {
     private readonly Graph _graph;

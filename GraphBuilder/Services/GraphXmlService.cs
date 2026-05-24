@@ -5,6 +5,9 @@ using System.Xml;
 
 namespace GraphBuilder.Services;
 
+/// <summary>
+/// Сервис для сохранения и загрузки графа в формате XML с использованием XmlSerializer.
+/// </summary>
 public class GraphXmlService
 {
     public static void Save(out string errorMessage, Graph graph, string filename = "Graph.xml")

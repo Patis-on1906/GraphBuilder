@@ -10,6 +10,11 @@ using GraphBuilder.Services;
 
 namespace GraphBuilder.Editor;
 
+/// <summary>
+/// Обработчик интерактивного создания дуг с помощью мыши и клавиши Ctrl.
+/// Отслеживает нажатия, рисует временную пунктирную линию и создаёт дугу
+/// при отпускании кнопки над целевым узлом.
+/// </summary>
 public class EdgeCreationHandler
 {
     private readonly Canvas _canvas;

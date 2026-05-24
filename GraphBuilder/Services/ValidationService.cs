@@ -4,6 +4,11 @@ using System.Linq;
 
 namespace GraphBuilder.Services;
 
+/// <summary>
+/// Сервис для проверки целостности графа перед загрузкой из XML или запуском анимации.
+/// Проверяет уникальность идентификаторов, корректность предикатов,
+/// положительность задержек и существование целевых узлов.
+/// </summary>
 public static class ValidationService
 {
     public static bool ValidateGraph(Graph g)   

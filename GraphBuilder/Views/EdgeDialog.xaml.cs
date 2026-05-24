@@ -2,6 +2,9 @@ using System.Windows;
 
 namespace GraphBuilder.Views;
 
+/// <summary>
+/// Диалоговое окно для изменения предиката и задержки дуги.
+/// </summary>
 public partial class EdgeDialog : Window
 {
     public int? ResultPredicate { get; private set; }

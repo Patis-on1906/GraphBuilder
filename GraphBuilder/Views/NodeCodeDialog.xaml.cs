@@ -2,6 +2,9 @@ using System.Windows;
 
 namespace GraphBuilder.Views;
 
+/// <summary>
+/// Диалоговое окно для редактирования программного кода вершины.
+/// </summary>
 public partial class NodeCodeDialog : Window
 {
     public string? ResultCode { get; private set; }
