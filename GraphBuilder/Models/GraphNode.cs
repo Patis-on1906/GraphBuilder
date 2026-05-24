@@ -6,6 +6,10 @@ using System.Xml.Serialization;
 
 namespace GraphBuilder.Models;
 
+/// <summary>
+/// Представляет вершину (состояние) графа.
+/// Содержит координаты, радиус, программный код и список исходящих дуг.
+/// </summary>
 public class GraphNode : INotifyPropertyChanged
 {
     [XmlAttribute("Id")]

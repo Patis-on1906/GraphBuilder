@@ -5,6 +5,11 @@ using System.Xml.Serialization;
 
 namespace GraphBuilder.Models;
 
+/// <summary>
+/// Представляет ориентированную дугу (переход) между двумя узлами.
+/// Содержит координаты начальной и конечной точек (на границах окружностей),
+/// предикат выбора и задержку перехода.
+/// </summary>
 public class GraphEdge : INotifyPropertyChanged
 {
     [XmlAttribute("AbsId")]

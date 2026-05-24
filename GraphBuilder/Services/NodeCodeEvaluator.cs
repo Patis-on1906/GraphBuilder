@@ -3,6 +3,11 @@ using System.Text.RegularExpressions;
 
 namespace GraphBuilder.Services;
 
+/// <summary>
+/// Интерпретатор программного кода вершины. Поддерживает константы,
+/// функции random(1,N), choose(...) и простые арифметические выражения.
+/// Символ N автоматически заменяется на количество исходящих дуг.
+/// </summary>
 public static class NodeCodeEvaluator
 {
     private static readonly Random s_random = new Random();

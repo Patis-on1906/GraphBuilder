@@ -6,6 +6,11 @@ using GraphBuilder.Editor;
 
 namespace GraphBuilder.Views;
 
+/// <summary>
+/// Главное окно приложения. Реализует интерфейс IGraphAnimationView
+/// для получения обратной связи от анимационного сервиса.
+/// Содержит меню, Canvas для отрисовки графа и строку состояния.
+/// </summary>
 public partial class MainWindow : Window, IGraphAnimationView
 {
     private readonly GraphEditorController _controller;

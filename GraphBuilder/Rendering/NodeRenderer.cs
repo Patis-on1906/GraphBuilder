@@ -8,8 +8,18 @@ using GraphBuilder.Models;
 
 namespace GraphBuilder.Rendering;
 
+/// <summary>
+/// Статический класс для создания визуального представления узла.
+/// Подписывается на изменения свойств узла для автоматического обновления позиции.
+/// </summary>
 public static class NodeRenderer
 {
+    
+    /// <summary>
+    /// Создаёт UI-элемент узла (Grid с Ellipse и TextBlock) и настраивает привязку к модели.
+    /// </summary>
+    /// <param name="node">Модель узла.</param>
+    /// <returns>Готовый контейнер для размещения на Canvas.</returns>
     public static Grid Create(GraphNode node)
     {
         var container = new Grid
